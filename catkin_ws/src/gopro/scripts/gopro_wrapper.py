@@ -1,10 +1,27 @@
 import unicodedata
 import requests
-import rospy
+
 from gopro.msg import Status
+from sensor_msgs.msg import Image as ROSImage
+
+# Numpy and scipy
+import numpy as np
+from scipy.ndimage import filters
+
+# OpenCV
+import cv2
 
 from gopro_responses import status_matrix
 from gopro_responses import command_matrix
+
+# attempt imports for image() function
+try:
+    import cv2
+    from PIL import Image
+    import StringIO
+    import base64
+except ImportError:
+    pass
 
 
 class GoProWrapper:
@@ -14,6 +31,25 @@ class GoProWrapper:
         self.password = password
         self.base_url = 'http://' + self.ip + '/'
 
+    """
+    Returns a photo from the live feed of the gopro
+    """
+    def image(self):
+        # use OpenCV to capture a frame and store it in a numpy array
+        stream = cv2.VideoCapture('http://' + self.ip + ':8080/live/amba.m3u8')
+        success, numpy_image = stream.read()
+
+        if success:
+
+            # use Image to save the image to a file, but actually save it
+            # to a string
+            image = Image.fromarray(numpy_image)
+
+            return ROSImage(data=image.getdata(), width=image.width, heigth=image.height)
+
+    """
+    Splits by control characters =D
+    """
     def _split_by_control_characters(self, val):
         # extract non-control characters
         output = []
@@ -80,13 +116,6 @@ class GoProWrapper:
             value = "00"
 
         return requests.get(self.__get_url("bacpac/PW", value))
-
-    """
-    Returns a photo
-    """
-    def photo(self):
-        response = requests.get(self.__get_url("camera/CM", "01"))
-        return response.text()
 
     """
     Constructs an URL with the given command and value

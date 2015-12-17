@@ -12,7 +12,7 @@ def talker():
     global gopro
 
     status_publisher = rospy.Publisher('gopro/status', Status, queue_size=10)
-    image_publisher = rospy.Publisher('gopro/image', Image, queue_size=2)
+    image_publisher = rospy.Publisher('gopro/camera/image', Image, queue_size=2)
     rospy.init_node('gopro', log_level=rospy.DEBUG)
 
     rate = rospy.Rate(1)
@@ -20,9 +20,14 @@ def talker():
     rospy.logerr("test")
 
     while not rospy.is_shutdown():
-        status = gopro.status()
+        image = gopro.image()
 
+        if image:
+            image_publisher.publish(image)
+
+        status = gopro.status()
         status_publisher.publish(status)
+
         rate.sleep()
 
 if __name__ == '__main__':
