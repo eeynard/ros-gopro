@@ -40,9 +40,6 @@ class GoProWrapper:
         success, numpy_image = stream.read()
 
         if success:
-
-            # use Image to save the image to a file, but actually save it
-            # to a string
             image = Image.fromarray(numpy_image)
 
             return ROSImage(data=image.getdata(), width=image.width, heigth=image.height)
