@@ -128,9 +128,15 @@ class GoProWrapper:
 
         return url
 
+    """
+    Transforms a hexa to a decimal
+    """
     def hex_to_dec(self, val):
         return int(val, 16)
 
+    """
+    Transforms a data received from the GoPro to a convenient value
+    """
     def __translate(self, config, value):
         if isinstance(config, dict):
             # use a lookup dictionary
