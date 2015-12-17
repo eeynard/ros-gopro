@@ -1,5 +1,6 @@
 example
 .vagrant
+.idea
 
 catkin_ws/build
 catkin_ws/devel
