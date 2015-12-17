@@ -1,9 +1,9 @@
 string mode
 string default_mode
 string spot_meter
-string timelapse_interval
+uint32 timelapse_interval
 string auto_off
-uint32 fov
+string fov
 string picres
 uint32 mins_elapsed
 uint32 secs_elapsed
@@ -22,6 +22,6 @@ uint32 batt2
 string overheated
 string attachment
 string vidres
-uint32 fps
+string fps
 
 

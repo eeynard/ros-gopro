@@ -49,7 +49,6 @@ add_message_files(
    CameraCV.msg
    CameraSE.msg
    CameraSX.msg
-   Bacpac.msg
    Status.msg
 )
 

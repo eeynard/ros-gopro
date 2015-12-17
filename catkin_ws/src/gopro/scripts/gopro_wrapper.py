@@ -1,6 +1,11 @@
 import unicodedata
 import requests
+import rospy
 from gopro.msg import Status
+
+from gopro_responses import status_matrix
+from gopro_responses import command_matrix
+
 
 class GoProWrapper:
 
@@ -33,18 +38,36 @@ class GoProWrapper:
     Create the status of the camera
     """
     def status(self):
-        response = requests.get(self.__get_url("camera/cv")).content.encode('hex')
         status = Status()
 
-        parts = self._split_by_control_characters(response.decode('hex'))
+        response = requests.get(self.__get_url("camera/cv")).content
+        parts = self._split_by_control_characters(response)
 
         if len(parts) > 0:
             # everything except the first two chunks of 'HD4.02.01.02.00'
             status.cv.firmware = '.'.join(parts[0].split('.')[2:])
             status.cv.model = '.'.join(parts[0].split('.')[0:2])
             status.cv.name = parts[1]
-        else:
-            return None
+
+        for command in status_matrix:
+            response = requests.get(self.__get_url(command)).content.encode('hex')
+            commandParts = command.split('/')
+
+            for item in status_matrix[command]:
+                args = status_matrix[command][item]
+
+                if 'first' in args and 'second' in args:
+                    part = response[args['first']:args['second']]
+                else:
+                    part = response
+
+                o = getattr(status, commandParts[1])
+                value = part
+
+                if 'translate' in args:
+                    value = self.__translate(args['translate'], part)
+
+                setattr(o, item, value)
 
         return status
 
@@ -75,3 +98,20 @@ class GoProWrapper:
             url += '?p=%' + value
 
         return url
+
+    def hex_to_dec(self, val):
+        return int(val, 16)
+
+    def __translate(self, config, value):
+        if isinstance(config, dict):
+            # use a lookup dictionary
+            if value in config:
+                return config[value]
+            else:
+                return 'translate error: {} not found'.format(value)
+        else:
+            # use an internal function
+            if hasattr(self, config):
+                return getattr(self, config)(value)
+            else:
+                return 'translate error: {} not a function'.format(config)
