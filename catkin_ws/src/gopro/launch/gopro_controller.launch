@@ -1,0 +1,3 @@
+<launch>
+  <node  pkg="gopro" name="gopro_controller" type="gopro_controller.py" />
+</launch>

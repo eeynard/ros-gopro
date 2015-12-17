@@ -1,1 +1,1 @@
-Int32 power
+uint32 power

@@ -1,3 +1,0 @@
-<launch>
-  <node name="gopro" pkg="gopro" type="gopro.py" />
-</launch>

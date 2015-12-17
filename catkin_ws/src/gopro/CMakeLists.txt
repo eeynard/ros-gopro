@@ -46,10 +46,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
    FILES
-   Bacpac.msg
    CameraCV.msg
    CameraSE.msg
    CameraSX.msg
+   Bacpac.msg
    Status.msg
 )
 
@@ -68,10 +68,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -105,7 +105,7 @@ add_message_files(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES gopro
-  CATKIN_DEPENDS rospy std_msgs
+  CATKIN_DEPENDS message_runtime rospy std_msgs
   DEPENDS system_lib
 )
 
@@ -152,7 +152,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-   scripts/gopro.py
+   scripts/gopro_controller.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

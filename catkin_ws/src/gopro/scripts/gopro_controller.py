@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import String
 from gopro.msg import Status
 from gopro_wrapper import GoProWrapper
 
