@@ -1,12 +1,12 @@
 import unicodedata
 import requests
+import rospy
 
 from gopro.msg import Status
 from sensor_msgs.msg import Image as ROSImage
 
 # Numpy and scipy
 import numpy as np
-from scipy.ndimage import filters
 
 # OpenCV
 import cv2
@@ -35,14 +35,23 @@ class GoProWrapper:
     Returns a photo from the live feed of the gopro
     """
     def image(self):
-        # use OpenCV to capture a frame and store it in a numpy array
-        stream = cv2.VideoCapture('http://' + self.ip + ':8080/live/amba.m3u8')
-        success, numpy_image = stream.read()
+        # restart the live feed
+        try:
+            requests.get('http://' + self.ip + '/gp/gpExec?p1=gpStreamA9&c1=restart')
 
-        if success:
-            image = Image.fromarray(numpy_image)
+            # use OpenCV to capture a frame and store it in a numpy array
+            stream = cv2.VideoCapture('udp://@' + self.ip + ':8554')
+            success, numpy_image = stream.read()
 
-            return ROSImage(data=image.getdata(), width=image.width, heigth=image.height)
+            if success:
+                image = Image.fromarray(numpy_image)
+
+                return ROSImage(data=image.getdata(), width=image.width, heigth=image.height)
+            else:
+                rospy.logerr('Was not successful retrieving the image')
+        except requests.exceptions.RequestException as exception:
+            rospy.logerr(exception.message)
+
 
     """
     Splits by control characters =D

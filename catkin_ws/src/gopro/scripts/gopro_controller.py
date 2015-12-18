@@ -17,8 +17,6 @@ def talker():
 
     rate = rospy.Rate(1)
 
-    rospy.logerr("test")
-
     while not rospy.is_shutdown():
         image = gopro.image()
 

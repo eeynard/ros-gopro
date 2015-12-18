@@ -20,4 +20,7 @@ apt-get install -y python-rosinstall
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
-pip install requests
+# Project dependencies
+apt-get install -y gfortran libav-tools ubuntu-restricted-extras libavcodec-extra-54 libavformat-extra-54
+
+pip install requests scipy
