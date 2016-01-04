@@ -21,6 +21,9 @@ wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
 # Project dependencies
-apt-get install -y gfortran libav-tools ubuntu-restricted-extras libavcodec-extra-54 libavformat-extra-54
+apt-get install -y gfortran libav-tools ubuntu-restricted-extras libavcodec-extra-54 libavformat-extra-54 libdc1394-22-dev libdc1394-22 libdc1394-utils
 
 pip install requests scipy
+
+# Add default rules for 1394
+echo "KERNEL==\"raw1394\", GROUP=\"video\"" > /etc/udev/rules.d/raw1394.rules

@@ -30,6 +30,9 @@ Vagrant.configure(2) do |config|
         vb.customize ["modifyvm", :id, "--cpus", cpus]
         vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         vb.customize ["guestproperty", "set", :id, "--timesync-threshold", 10000 ]
+
+        # Adds an USB to the virtual box
+        vb.customize ["modifyvm", :id, "--usb", "on"]
     end
 
     config.vm.provision "shell", path: "install-ros.sh"
