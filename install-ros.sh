@@ -23,7 +23,7 @@ python get-pip.py
 # Project dependencies
 apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
 
-pip install requests scipy lxml
+pip install requests lxml
 
 # Add default rules for 1394
 echo "KERNEL==\"raw1394\", GROUP=\"video\"" > /etc/udev/rules.d/raw1394.rules

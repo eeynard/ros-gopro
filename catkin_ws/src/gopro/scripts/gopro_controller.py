@@ -16,10 +16,7 @@ def take_picture_callback(data):
         picture = gopro.picture()
 
         if picture:
-            rospy.logerr('Adding picture to topic')
             picture_publisher.publish(picture)
-
-        take_picture_publisher.publish(0)
 
 
 def talker():
@@ -38,7 +35,9 @@ def talker():
 
     while not rospy.is_shutdown():
         status = gopro.status()
-        status_publisher.publish(status)
+
+        if status:
+            status_publisher.publish(status)
 
         rate.sleep()
 
