@@ -20,4 +20,10 @@ apt-get install -y python-rosinstall
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
-pip install requests
+# Project dependencies
+apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
+
+pip install requests scipy lxml
+
+# Add default rules for 1394
+echo "KERNEL==\"raw1394\", GROUP=\"video\"" > /etc/udev/rules.d/raw1394.rules
