@@ -16,7 +16,6 @@ def take_picture_callback(data):
         picture = gopro.picture()
 
         if picture:
-            rospy.logerr('Adding picture to topic')
             picture_publisher.publish(picture)
 
 
