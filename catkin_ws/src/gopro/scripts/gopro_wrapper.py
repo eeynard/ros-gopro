@@ -1,6 +1,9 @@
 import unicodedata
 import requests
 import rospy
+import socket
+
+from lxml.html import parse
 
 from gopro.msg import Status
 from sensor_msgs.msg import Image as ROSImage
@@ -8,20 +11,13 @@ from sensor_msgs.msg import Image as ROSImage
 # Numpy and scipy
 import numpy as np
 
-# OpenCV
-import cv2
-
 from gopro_responses import status_matrix
 from gopro_responses import command_matrix
 
 # attempt imports for image() function
-try:
-    import cv2
-    from PIL import Image
-    import StringIO
-    import base64
-except ImportError:
-    pass
+import cv2
+from cv_bridge import CvBridge, CvBridgeError
+from PIL import Image
 
 
 class GoProWrapper:
@@ -32,23 +28,75 @@ class GoProWrapper:
         self.base_url = 'http://' + self.ip + '/'
 
     """
+    Launches the preview. keep_alive_preview must be call at least every 2 seconds
+    """
+    def preview(self):
+        requests.get('http://' + self.ip + '/gp/gpExec?p1=gpStreamA9&c1=restart')
+
+    """
+    Sends a packet to the camera to keep alive the preview
+    """
+    def keep_alive_preview(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto("_GPHD_:0:0:2:0\n", (self.ip, 8554))
+
+    def picture(self):
+        # Mode to photo
+        requests.get('http://' + self.ip + '/gp/gpControl/command/mode?p=1')
+
+        # Takes the photo
+        requests.get('http://' + self.ip + '/gp/gpControl/command/shutter?p=1')
+
+        # Crawl the web page
+        parsed = parse('http://' + self.ip + '/videos/DCIM/100GOPRO/')
+        elements = parsed.findall('.//a')
+
+        length = len(elements)
+
+        rospy.logerr('Size of elements ' + str(length))
+
+        for i in reversed(range(length)):
+            rospy.logerr("Range" + str(i))
+
+            rospy.logerr(elements[i].text_content())
+
+            if elements[i].text_content().find('.JPG') != -1:
+                cap = cv2.VideoCapture('http://' + self.ip + '/videos/DCIM/100GOPRO/' + elements[i].text_content())
+                if cap.isOpened():
+                    success, picture = cap.read()
+                    cap.release()
+
+                    if success:
+                        return CvBridge().cv2_to_imgmsg(picture, encoding="passthrough")
+                    else:
+                        rospy.logerr('Reading the stream has encountered an error')
+                else:
+                    rospy.logerr('Was not able to open the VideoCapture')
+
+
+    """
     Returns a photo from the live feed of the gopro
     """
-    def image(self):
+    def picture_from_preview(self):
         # restart the live feed
         try:
-            requests.get('http://' + self.ip + '/gp/gpExec?p1=gpStreamA9&c1=restart')
-
             # use OpenCV to capture a frame and store it in a numpy array
-            stream = cv2.VideoCapture('udp://@' + self.ip + ':8554')
-            success, numpy_image = stream.read()
+            stream = cv2.VideoCapture(filename='udp://@' + self.ip + ':8554')
 
-            if success:
-                image = Image.fromarray(numpy_image)
+            if stream.isOpened():
+                success, numpy_image = stream.read()
 
-                return ROSImage(data=image.getdata(), width=image.width, heigth=image.height)
+                stream.release()
+                cv2.destroyAllWindows()
+
+                if success:
+                    image = Image.fromarray(numpy_image)
+
+                    return ROSImage(data=image.data)
+                else:
+                    rospy.logerr('Was not successful retrieving the image')
             else:
-                rospy.logerr('Was not successful retrieving the image')
+                    rospy.logerr('Was not able to open the video stream')
         except requests.exceptions.RequestException as exception:
             rospy.logerr(exception.message)
 
