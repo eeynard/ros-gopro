@@ -21,8 +21,7 @@ wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
 # Project dependencies
-apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-dev
-apt-get build-dep python3-lxml
+apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
 
 pip install requests scipy lxml
 
