@@ -8,8 +8,6 @@ from lxml.html import parse
 from gopro.msg import Status
 from sensor_msgs.msg import Image as ROSImage
 
-# Numpy and scipy
-import numpy as np
 
 from gopro_responses import status_matrix
 from gopro_responses import command_matrix
