@@ -2,6 +2,7 @@ import unicodedata
 import requests
 import rospy
 import socket
+import time
 
 from lxml.html import parse
 
@@ -54,6 +55,8 @@ class GoProWrapper:
         # Takes the photo
         self.do_http_request('/gp/gpControl/command/shutter?p=1')
 
+        time.sleep(.5)
+
         # Crawl the web page
         parsed = parse('http://' + self.ip + '/videos/DCIM/100GOPRO/')
         elements = parsed.findall('.//a')
@@ -71,6 +74,7 @@ class GoProWrapper:
                     capture.release()
 
                     if success:
+                        rospy.logerr('Now removeing ' + elements[i].text_content())
                         self.do_http_request('/gp/gpControl/command/storage/delete?p=/100GOPRO/' + elements[i].text_content())
                         return self.cv2_bridge.cv2_to_imgmsg(picture, encoding="passthrough")
                     else:
