@@ -21,7 +21,10 @@ wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
 # Project dependencies
-apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
+add-apt-repository -y ppa:kirillshkrogalev/ffmpeg-next
+apt-get install -y gfortran ffmpeg libav-tools ubuntu-restricted-extras libavcodec-extra-54 libavformat-extra-54 libdc1394-22-dev libdc1394-22 libdc1394-utils
+
+apt-get install -y libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
 
 pip install requests lxml
 
