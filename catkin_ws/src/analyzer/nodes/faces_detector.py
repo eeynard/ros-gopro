@@ -32,13 +32,16 @@ class FacesDetector(threading.Thread):
     	while not self.Terminated and not rospy.is_shutdown():
             if self.image is None:
                 continue
+            if self.image == self.oldImage:
+                time.sleep(0.3)
+                continue
             self.oldImage = self.image
             try:
                 image = self.bridge.imgmsg_to_cv2(self.image)
                 self.detectFaces(image)
             except CvBridgeError as e:
                 rospy.logerr(e)
-            time.sleep(0.3)
+            
 	
     def stop(self):
         self.Terminated = True
@@ -49,7 +52,7 @@ class FacesDetector(threading.Thread):
         rospy.logerr("Analyzing...")
         # Determine vertical video angle
         verticalAngle = self.fov * self.vidRes
-        div = float(img.shape[1])/800.0
+        div = float(img.shape[1])/1000.0
         small = cv2.resize(img, (0,0), fx=(1/div), fy=(1/div))
         gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
         (height, width, _) = small.shape
