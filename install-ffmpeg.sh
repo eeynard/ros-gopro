@@ -6,6 +6,7 @@ apt-get -y install yasm
 apt-get -y install build-essential checkinstall git libfaac-dev libgpac-dev \
     libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev librtmp-dev libtheora-dev \
     libvorbis-dev pkg-config texi2html zlib1g-dev \
+    libass-dev \
     libav-tools ubuntu-restricted-extras libavcodec-extra-54 \
     libavformat-extra-54 libdc1394-22-dev libdc1394-22 libdc1394-utils
 
