@@ -13,6 +13,7 @@ class FacesDetector(threading.Thread):
         threading.Thread.__init__(self)
         self.Terminated = False
         self.image = None
+        self.oldImage = None
         
         #Image resolutions
         self.vidRes = vidRes
@@ -25,55 +26,48 @@ class FacesDetector(threading.Thread):
         self.eye_cascade = cv2.CascadeClassifier(path + '/resources/haarcascade_eye.xml')
         
         self.bridge = CvBridge()
+        self.sendPicturePub = sendPicturePublisher
         
     def run(self):
-    	while not self.Terminated:
+    	while not self.Terminated and not rospy.is_shutdown():
             if self.image is None:
-                    continue
+                continue
+            self.oldImage = self.image
             try:
                 image = self.bridge.imgmsg_to_cv2(self.image)
-                self.sendPicturePub.publish(self.image)
-                detectFaces(image)
+                self.detectFaces(image)
             except CvBridgeError as e:
                 rospy.logerr(e)
-            time.sleep(0.1)
+            time.sleep(0.3)
 	
     def stop(self):
         self.Terminated = True
         
     def detectFaces(self, img):
-        if self.image is None:
+        if img is None:
             return
-                
         rospy.logerr("Analyzing...")
-        
         # Determine vertical video angle
         verticalAngle = self.fov * self.vidRes
-        
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        (height, width, _) = img.shape
-        cv2.circle(img, (int(width/2), int(height/2)), 3, (0, 0, 255), -1)
+        div = float(img.shape[1])/800.0
+        small = cv2.resize(img, (0,0), fx=(1/div), fy=(1/div))
+        gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+        (height, width, _) = small.shape
+        cv2.circle(img, (int(width/2*div), int(height/2*div)), 3, (0, 255, 0), -1)
         faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
         for (x,y,w,h) in faces:
             rectangle = Rect((x,y,w,h))
             (xCent, yCent) = rectangle.get_center()
-            
             roi_gray = gray[y:y+h, x:x+w]
-            roi_color = img[y:y+h, x:x+w]
+            roi_color = small[y:y+h, x:x+w]
             eyes = self.eye_cascade.detectMultiScale(roi_gray)
-            
             if len(eyes) >= 2 :
-                rospy.logerr("FaceDetected...")
                 cv2.putText(img,"Face detected", (0,150), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,255), 5)
-                cv2.circle(img, (int(xCent), int(yCent)), 3, (0, 255, 0), -1)
-                cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-                
+                cv2.circle(img, (int(xCent*div), int(yCent*div)), 3, (0, 255, 0), -1)
+                cv2.rectangle(img,(int(x*div),int(y*div)),(int((x+w)*div),int((y+h)*div)),(255,0,0),5)
                 #Compute distance between screen center and face center in degree
                 horizontalDistanceAngle = 0
                 verticalDistanceAngle = 0
-                
-                self.sendPicturePub.publish(self.bridge.cv2_to_imgmsg(img, encoding="passthrough"))
-                
                 if xCent < (width/2.0):
                     distance = math.fabs(xCent - (width/2.0))
                     horizontalDistanceAngle = self.fov * distance / width
@@ -90,5 +84,7 @@ class FacesDetector(threading.Thread):
                     distance = math.fabs(yCent - (height/2.0))
                     verticalDistanceAngle = verticalAngle * distance / height
                     rospy.logerr("Bottom : " + str(verticalDistanceAngle) + " degrees")
+        
+        self.sendPicturePub.publish(self.bridge.cv2_to_imgmsg(img, encoding="passthrough"))
 
 
