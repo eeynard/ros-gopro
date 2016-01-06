@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_geometry
   sensor_msgs
   std_msgs
-  #gopro
+  rospack
 )
 
 ## System dependencies are found with CMake's conventions
