@@ -4,6 +4,8 @@ sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /
 apt-key adv --keyserver hkp://pool.sks-keyservers.net:80 --recv-key 0xB01FA116
 apt-get update
 
+/vagrant/install-ffmpeg.sh
+
 apt-get install -y libgl1-mesa-dev-lts-utopic
 
 apt-get install -y ros-jade-desktop-full
@@ -21,10 +23,7 @@ wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
 # Project dependencies
-add-apt-repository -y ppa:kirillshkrogalev/ffmpeg-next
-apt-get install -y gfortran ffmpeg libav-tools ubuntu-restricted-extras libavcodec-extra-54 libavformat-extra-54 libdc1394-22-dev libdc1394-22 libdc1394-utils
-
-apt-get install -y libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
+apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
 
 pip install requests lxml
 
