@@ -45,7 +45,7 @@ class GoProWrapper:
     """
     def keep_alive_preview(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        rospy.loginfo('Sending keep alive packet')
+        rospy.loginfo('Sending keep alive packet to preview')
         sock.sendto("_GPHD_:0:0:2:0\n", (self.ip, 8554))
 
     """

@@ -4,15 +4,15 @@ import rospy
 from std_msgs.msg import Int64
 from std_msgs.msg import Float64
 from gopro.msg import Status
+from sensor_msgs.msg import Image
 
 class Listener:    
     'Init'
     def __init__(self):
         # GoPro video resolutions 
-        self.videoResolutions = {'720p SuperView' : (9.0/16.0), '920p' : (3.0/4.0), 'WVGA' : (9.0/16.0)}
-        rospy.init_node('Analyzer/Listener', anonymous=True)
+        self.videoResolutions = {'720p SuperView' : (16.0/9.0), '920p' : (4.0/3.0), 'WVGA' : (16.0/9.0)}
+        rospy.init_node('listener', anonymous=True)
         self.initPublish()
-        self.facesDetector = FacesDetector(self.analyzePub, 170.0, self.videoResolutions['720p SuperView'])
         self.initSubscribe()
         self.takePicturePub.publish(1)
 
@@ -25,18 +25,19 @@ class Listener:
     def initPublish(self):
         self.takePicturePub = rospy.Publisher('/gopro/camera/take_picture', Int64, queue_size=10)
         self.horizontalAnglePub = rospy.Publisher('/analyzer/picture/h_angle', Float64, queue_size=10)
-        self.horizontalAnglePub = rospy.Publisher('/analyzer/picture/raw', Image, queue_size=10)
+        self.pictureRawPub = rospy.Publisher('/analyzer/picture/raw', Image, queue_size=10)
         self.vidResPub = rospy.Publisher('/analyzer/picture/vidRes', Float64, queue_size=10)
 
     'Callback for /gopro/camera/picture topic'
     def callbackGoProPicture(self, data):
-        # Get image from GoPro and give it to FacesDetector
-        self.facesDetector.image = data
+        rospy.logdebug('GoProPicture')
+        self.pictureRawPub.publish(data)
         # Ask new picture
         self.takePicturePub.publish(1)
 
     'Callback for /gopro/status topic'
     def callbackGoProStatus(self, data):
+        rospy.logdebug('GoProSTatus')
         cameraSX = data.sx
         if cameraSX :
             # Publish Video Resolution
