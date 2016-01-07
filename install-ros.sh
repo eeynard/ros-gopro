@@ -30,3 +30,6 @@ pip install pyopenssl ndg-httpsclient pyasn1 requests lxml rect
 
 # Add default rules for 1394
 echo "KERNEL==\"raw1394\", GROUP=\"video\"" > /etc/udev/rules.d/raw1394.rules
+
+apt-get install ros-indigo-rosserial-arduino
+apt-get install ros-indigo-rosserial
