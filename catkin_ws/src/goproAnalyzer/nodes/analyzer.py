@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import threading
 import rospy
 import cv2
@@ -47,7 +49,8 @@ class Analyzer:
         self.faceDistancePub = rospy.Publisher('/analyzer/face/distance', Float64, queue_size=2)
     
     'Detect faces'
-    def detectFaces(self, img, verticalAngle, horizontalAngle, vidRes):        
+    def detectFaces(self, img, verticalAngle, horizontalAngle, vidRes):
+        rospy.logdebug('detectFaces')
         # Define a divider to resize picture
         div = float(img.shape[1])/1000.0
 
@@ -85,33 +88,41 @@ class Analyzer:
             #Compute distance between screen center and face center in degree
             horizontalDistanceAngle = 0
             verticalDistanceAngle = 0
+            facePosition = FacePosition()
             if xCent < (width/2.0):
                 distance = math.fabs(xCent - (width/2.0))
                 horizontalDistanceAngle = fov * distance / width
-                rospy.logerr("Left : " + str(horizontalDistanceAngle) + " degrees")
+                facePosition.horizontal = - horizontalDistanceAngle
+                rospy.logdebug("Left : " + str(horizontalDistanceAngle) + " degrees")
             elif xCent > (width/2.0):
                 distance = math.fabs(xCent - (width/2.0))
                 horizontalDistanceAngle = fov * distance / width
-                rospy.logerr("Right : " + str(horizontalDistanceAngle) + " degrees")
+                facePosition.horizontal = horizontalDistanceAngle
+                rospy.logdebug("Right : " + str(horizontalDistanceAngle) + " degrees")
             if yCent < (height/2.0):
                 distance = math.fabs(yCent - (height/2.0))
                 verticalDistanceAngle = verticalAngle * distance / height
-                rospy.logerr("Top : " + str(verticalDistanceAngle) + " degrees")
+                facePosition.vertical = verticalDistanceAngle
+                rospy.logdebug("Top : " + str(verticalDistanceAngle) + " degrees")
             elif yCent > (height/2.0):
                 distance = math.fabs(yCent - (height/2.0))
                 verticalDistanceAngle = verticalAngle * distance / height
-                rospy.logerr("Bottom : " + str(verticalDistanceAngle) + " degrees")
+                facePosition.vertical = - verticalDistanceAngle
+                rospy.logdebug("Bottom : " + str(verticalDistanceAngle) + " degrees")
                 
         # Publish analyzed picture        
         self.analyzedPicturePub.publish(self.bridge.cv2_to_imgmsg(img, encoding="passthrough"))
 
     def callbackPictureHAngle(self, data):
+        rospy.logdebug('PictureHAngle')
         self.horizontalAngle = data
 
     def callbackPictureVidRes(self, data):
+        rospy.logdebug('PictureVidRes')
         self.vidRes = data
 
     def callbackPictureRaw(self, data):
+        rospy.logdebug('PictureRaw')
         if self.horizontalAngle is None or self.vidRes is None:
             return
         self.comptureVerticalAngle(self.horizontalAngle, self.vidRes)
@@ -124,7 +135,8 @@ class Analyzer:
 
     'Determine vertical video angle'
     def comptureVerticalAngle(self, horizontalAngle, vidRes):
-        self.verticalAngle = horizontalAngle * vidRes
+        self.verticalAngle = horizontalAngle * (1/vidRes)
+        self.verticalAnglePub.publish(self.verticalAngle)
 
     def start(self):
         rospy.spin()
