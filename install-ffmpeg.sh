@@ -6,7 +6,7 @@ apt-get -y install yasm
 apt-get -y install build-essential checkinstall git libfaac-dev libgpac-dev \
     libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev librtmp-dev libtheora-dev \
     libvorbis-dev pkg-config texi2html zlib1g-dev \
-    libass-dev \
+    libass-dev libsdl1.2-dev \
     libav-tools ubuntu-restricted-extras libavcodec-extra-54 \
     libavformat-extra-54 libdc1394-22-dev libdc1394-22 libdc1394-utils
 
@@ -28,6 +28,7 @@ PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./conf
   --extra-cflags="-I$HOME/ffmpeg_build/include" \
   --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
   --bindir="$HOME/bin" \
+  --enable-ffplay \
   --enable-gpl \
   --enable-libass \
   --enable-libfreetype \
