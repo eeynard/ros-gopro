@@ -43,4 +43,4 @@ make install
 make distclean
 hash -r
 
-cp ff* /usr/local/bin
+cp ~/bin/ff* /usr/local/bin
