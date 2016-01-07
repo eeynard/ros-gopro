@@ -1,4 +1,3 @@
-
 #if (ARDUINO >= 100)
 #include <Arduino.h>
 #else
@@ -59,7 +58,6 @@ void mode_handler( const std_msgs::UInt16& cmd_msg){
     mode.write(cmd_msg.data);
   }
 }
-
 
 ros::Subscriber<std_msgs::UInt16> sub_pitch(RGP_TOPIC_PITCH, pitch_handler);
 ros::Subscriber<std_msgs::UInt16> sub_heading(RGP_TOPIC_HEADING, heading_handler);
