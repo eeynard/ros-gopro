@@ -20,9 +20,13 @@ Now you can compile the code and upload the binary to the board.
 
 ### Launch the ROS node
 At this point, your arduino is ready to communicate with the gimbal. Next step is to launch the ROS node that will subscribe to several topics to control the axes. To do so, first launch roscore in a new terminal :
-`roscore`
+```
+roscore
+```
 Then open another terminal and launch the rosserial node that will execute our code from the arduino :
-`rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 # Put the right COM port here (it can be ttyUSB0, ttyUSB1, ...)`
+```
+rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 # Put the right COM port here (it can be ttyUSB0, ttyUSB1, ...)
+```
 Now our ROS node is waiting for new data on 3 differents topics :
 * RGP\_pitch\_control : [std_msgs/UInt16] Use this topic to rotate your camera on the horizontal axis
 * RGP\_heading\_control : [std_msgs/UInt16] Use this topic rotate the camera on the vertical axis
@@ -33,5 +37,7 @@ Now our ROS node is waiting for new data on 3 differents topics :
 
 ### Send data to the topics
 Last thing to do is to publish to ROS topics to control the gimbal. It is a ROS compliant app so you can use the basic way to publish data on ROS. If you want to do a quick test you can use ROS command line :
-`rostopic pub RGP_pitch_control std_msgs/UInt16 60`
+```
+rostopic pub RGP_pitch_control std_msgs/UInt16 60
+```
 
