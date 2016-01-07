@@ -22,7 +22,7 @@ class Analyzer:
         self.horizontalAngle = None
 
         # Init node
-        rospy.init_node('analyzer', anonymous=True)
+        rospy.init_node('analyzer', log_level=rospy.DEBUG)
         
         # Find needed resources
         rospack = rospkg.RosPack()
@@ -49,7 +49,7 @@ class Analyzer:
         self.faceDistancePub = rospy.Publisher('/analyzer/face/distance', Float64, queue_size=2)
     
     'Detect faces'
-    def detectFaces(self, img, verticalAngle, horizontalAngle, vidRes):
+    def detectFaces(self, img, verticalAngle, horizontalAngle):
         rospy.logdebug('detectFaces')
         # Define a divider to resize picture
         div = float(img.shape[1])/1000.0
@@ -69,21 +69,33 @@ class Analyzer:
         for (x,y,w,h) in faces:
             cv2.putText(img,"Face detected", (0,150), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,255), 5)
             rectangle = Rect((x,y,w,h))
-
+            
             # Get face center
             (xCent, yCent) = rectangle.get_center()
-
+            
             # Draw face center and face rectangle
             cv2.circle(img, (int(xCent*div), int(yCent*div)), 3, (0, 255, 0), -1)
             cv2.rectangle(img,(int(x*div),int(y*div)),(int((x+w)*div),int((y+h)*div)),(255,0,0),5)
-
+            
             # Try to see if there are eyes
             roi_gray = gray[y:y+h, x:x+w]
             roi_color = small[y:y+h, x:x+w]
             eyes = self.eye_cascade.detectMultiScale(roi_gray)
             
-            if len(eyes) >= 2 :
-                cv2.putText(img,"Eyes detected", (0,300), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,255), 5)
+            # Compute face distance
+            distance = (w*(-0.83)+197.7)
+            
+            if len(eyes) == 2 :
+                cv2.putText(img,"Eyes detected", (0,450), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,255), 5)
+                
+                #Compute distance between eyes
+                eye1 = Rect(eyes[0])
+                eye2 = Rect(eyes[1])
+                pixDistance = math.fabs(eye1.get_center()[0] - eye2.get_center()[0])
+                rospy.logerr('---------------' + str(pixDistance))
+                distance = (pixDistance*(-0.27)+63.8)
+                
+            cv2.putText(img,"Distance : " + str(distance), (0,300), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,255), 5)
             
             #Compute distance between screen center and face center in degree
             horizontalDistanceAngle = 0
@@ -91,12 +103,12 @@ class Analyzer:
             facePosition = FacePosition()
             if xCent < (width/2.0):
                 distance = math.fabs(xCent - (width/2.0))
-                horizontalDistanceAngle = fov * distance / width
+                horizontalDistanceAngle = self.horizontalAngle * distance / width
                 facePosition.horizontal = - horizontalDistanceAngle
                 rospy.logdebug("Left : " + str(horizontalDistanceAngle) + " degrees")
             elif xCent > (width/2.0):
                 distance = math.fabs(xCent - (width/2.0))
-                horizontalDistanceAngle = fov * distance / width
+                horizontalDistanceAngle = self.horizontalAngle * distance / width
                 facePosition.horizontal = horizontalDistanceAngle
                 rospy.logdebug("Right : " + str(horizontalDistanceAngle) + " degrees")
             if yCent < (height/2.0):
@@ -109,33 +121,33 @@ class Analyzer:
                 verticalDistanceAngle = verticalAngle * distance / height
                 facePosition.vertical = - verticalDistanceAngle
                 rospy.logdebug("Bottom : " + str(verticalDistanceAngle) + " degrees")
+            # Publish face position
+            self.facePositionPub.publish(facePosition)
                 
-        # Publish analyzed picture        
+        # Publish analyzed picture     
         self.analyzedPicturePub.publish(self.bridge.cv2_to_imgmsg(img, encoding="passthrough"))
+        
 
     def callbackPictureHAngle(self, data):
-        rospy.logdebug('PictureHAngle')
-        self.horizontalAngle = data
+        self.horizontalAngle = data.data
 
     def callbackPictureVidRes(self, data):
-        rospy.logdebug('PictureVidRes')
-        self.vidRes = data
+        self.vidRes = data.data
 
     def callbackPictureRaw(self, data):
-        rospy.logdebug('PictureRaw')
         if self.horizontalAngle is None or self.vidRes is None:
             return
-        self.comptureVerticalAngle(self.horizontalAngle, self.vidRes)
+        self.computeVerticalAngle(self.horizontalAngle, self.vidRes)
         try:
             # Convert image from ROS to OpenCV
             image = self.bridge.imgmsg_to_cv2(data)
-            self.detectFaces(image, self.verticalAngle, self.horizontalAngle, self.vidRes)
+            self.detectFaces(image, self.verticalAngle, self.horizontalAngle)
         except CvBridgeError as e:
             rospy.logerr(e)
 
     'Determine vertical video angle'
-    def comptureVerticalAngle(self, horizontalAngle, vidRes):
-        self.verticalAngle = horizontalAngle * (1/vidRes)
+    def computeVerticalAngle(self, horizontalAngle, vidRes):
+        self.verticalAngle = horizontalAngle * (1.0/vidRes)
         self.verticalAnglePub.publish(self.verticalAngle)
 
     def start(self):

@@ -11,10 +11,9 @@ class Listener:
     def __init__(self):
         # GoPro video resolutions 
         self.videoResolutions = {'720p SuperView' : (16.0/9.0), '920p' : (4.0/3.0), 'WVGA' : (16.0/9.0)}
-        rospy.init_node('listener', anonymous=True)
+        rospy.init_node('listener', log_level=rospy.DEBUG)
         self.initPublish()
         self.initSubscribe()
-        self.takePicturePub.publish(1)
 
     'Initialisation of topic subscriptions'
     def initSubscribe(self):
@@ -30,25 +29,28 @@ class Listener:
 
     'Callback for /gopro/camera/picture topic'
     def callbackGoProPicture(self, data):
-        rospy.logdebug('GoProPicture')
         self.pictureRawPub.publish(data)
         # Ask new picture
         self.takePicturePub.publish(1)
 
     'Callback for /gopro/status topic'
     def callbackGoProStatus(self, data):
-        rospy.logdebug('GoProSTatus')
         cameraSX = data.sx
         if cameraSX :
             # Publish Video Resolution
             if cameraSX.vidres in self.videoResolutions:
-                self.horizontalAnglePub.publish(self.videoResolutions[cameraSX.vidres])
+                self.vidResPub.publish(self.videoResolutions[cameraSX.vidres])
             # Publish Horizontal Camera Angle
             self.horizontalAnglePub.publish(float(cameraSX.fov))
+            # Ask new picture
+            self.takePicturePub.publish(1)
 
-    'Launch analysis'
+    'Launch listener'
     def start(self):
+        # Ask new picture
+        self.takePicturePub.publish(1)
         rospy.spin()
+            
 
 if __name__ == '__main__':
     listen = Listener()
