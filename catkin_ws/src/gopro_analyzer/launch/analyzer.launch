@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find gopro_analyzer)/resources/rviz-config.rviz"/>
+  <node pkg="gopro_analyzer" name="analyzer" type="analyzer.py" output="screen" />
+  <node pkg="gopro_analyzer" name="listener" type="listener.py" output="screen" />
+</launch>
