@@ -10,7 +10,7 @@ import rospkg
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float64
-from analyzer.msg import FacePosition
+from gopro_analyzer.msg import FacePosition
 from rect.rect import Rect
   
 class Analyzer:
@@ -22,11 +22,11 @@ class Analyzer:
         self.horizontalAngle = None
 
         # Init node
-        rospy.init_node('Analyzer', anonymous=True)
+        rospy.init_node('analyzer', anonymous=True)
         
         # Find needed resources
         rospack = rospkg.RosPack()
-        path = rospack.get_path('analyzer')
+        path = rospack.get_path('gopro_analyzer')
         self.face_cascade = cv2.CascadeClassifier(path + '/resources/haarcascade_frontalface_default.xml')
         self.eye_cascade = cv2.CascadeClassifier(path + '/resources/haarcascade_eye.xml')
 
@@ -37,8 +37,8 @@ class Analyzer:
         self.initPublish()
 
     def initSubscribe(self):
-        rospy.Subscriber('/analyzer/picture/h_angle', Image, self.callbackPictureHAngle)
-        rospy.Subscriber('/analyzer/picture/vidRes', Image, self.callbackPictureVidRes)
+        rospy.Subscriber('/analyzer/picture/h_angle', Float64, self.callbackPictureHAngle)
+        rospy.Subscriber('/analyzer/picture/vidRes', Float64, self.callbackPictureVidRes)
         rospy.Subscriber('/analyzer/picture/raw', Image, self.callbackPictureRaw)
 
     'Initialisation of topic publications'

@@ -11,7 +11,7 @@ class Listener:
     def __init__(self):
         # GoPro video resolutions 
         self.videoResolutions = {'720p SuperView' : (16.0/9.0), '920p' : (4.0/3.0), 'WVGA' : (16.0/9.0)}
-        rospy.init_node('Analyzer_Listener', anonymous=True)
+        rospy.init_node('listener', anonymous=True)
         self.initPublish()
         self.initSubscribe()
         self.takePicturePub.publish(1)

@@ -1,5 +1,0 @@
-<launch>
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find analyzer)/resources/rviz-config.rviz"/>
-  <node pkg="analyzer" name="analyzer" type="analyzer.py" output="screen" />
-  <node pkg="analyzer" name="analyzer_listener" type="listener.py" output="screen" />
-</launch>
