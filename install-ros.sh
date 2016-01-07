@@ -13,6 +13,7 @@ rosdep init
 rosdep update
 
 echo "source /opt/ros/jade/setup.bash" >> ~/.bashrc
+echo "export LC_ALL="en_US.UTF-8" >> ~/.bashrc
 source ~/.bashrc
 
 sudo -u vagrant echo "source /opt/ros/jade/setup.bash" >> /home/vagrant/.profile
@@ -23,16 +24,12 @@ wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
 # Project dependencies
-apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-devRemoved
+apt-get install -y gfortran libxslt1-dev libxml2-dev libxslt-dev python-dev
 
-pip install requests lxml
+pip install pyopenssl ndg-httpsclient pyasn1 requests lxml rect
 
 # Add default rules for 1394
 echo "KERNEL==\"raw1394\", GROUP=\"video\"" > /etc/udev/rules.d/raw1394.rules
 
-# Needed for Analyzer.py script
-pip install rect
-
-# Rosserial (To make communication between arduino board and ros)
 apt-get install ros-indigo-rosserial-arduino
 apt-get install ros-indigo-rosserial

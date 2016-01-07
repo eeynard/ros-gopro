@@ -1,3 +1,5 @@
+# Tributes to https://github.com/joshvillbrandt/GoProController
+
 status_matrix = {
     'camera/se': {
         'preview': {
