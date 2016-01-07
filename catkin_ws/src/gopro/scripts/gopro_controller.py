@@ -13,8 +13,8 @@ picture_publisher = None
 
 def take_picture_callback(data):
     if data.data:
-        # picture = gopro.picture()
-        picture = gopro.picture_from_preview()
+        picture = gopro.picture()
+        # picture = gopro.picture_from_preview()
 
         if picture:
             picture_publisher.publish(picture)
@@ -34,13 +34,13 @@ def talker():
 
     rate = rospy.Rate(1)
 
-    gopro.start_preview()
+    #gopro.start_preview()
 
     keep_alive = 1
 
     while not rospy.is_shutdown():
         if keep_alive:
-            gopro.keep_alive_preview()
+            #gopro.keep_alive_preview()
             keep_alive = 0
         else:
             keep_alive = 1
