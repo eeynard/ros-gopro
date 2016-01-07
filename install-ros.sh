@@ -32,3 +32,7 @@ echo "KERNEL==\"raw1394\", GROUP=\"video\"" > /etc/udev/rules.d/raw1394.rules
 
 # Needed for Analyzer.py script
 pip install rect
+
+# Rosserial (To make communication between arduino board and ros)
+apt-get install ros-indigo-rosserial-arduino
+apt-get install ros-indigo-rosserial
