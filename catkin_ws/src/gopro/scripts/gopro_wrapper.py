@@ -24,6 +24,9 @@ class GoProWrapper:
         self.base_url = 'http://' + self.ip + '/'
         self.cv2_bridge = CvBridge()
 
+        # Sets the resolution to the minimum one
+        self.do_http_request('/gp/gpControl/setting/2/13')
+
     """
     Wrapped to do an HTTP request
     """
@@ -97,9 +100,6 @@ class GoProWrapper:
     Takes a picture and retrieves it from HTTP
     """
     def picture(self):
-        # Sets the resolution to the minimum one
-        self.do_http_request('/gp/gpControl/setting/2/13')
-
         # Mode to photo
         self.do_http_request('/gp/gpControl/command/mode?p=1')
 
