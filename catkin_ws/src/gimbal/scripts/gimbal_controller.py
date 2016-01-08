@@ -12,9 +12,12 @@ def talker(received):
     global gvangle
     global ghangle
     global haveReceived
-    gvangle = received.vertical
-    ghangle = received.horizontal
-    haveReceived = True
+    if received.vertical <= -7 or 7 <= received.vertical:
+        gvangle = received.vertical
+        haveReceived = True
+    if received.horizontal <= -7 or 7 <= received.horizontal:
+        ghangle = received.horizontal
+        haveReceived = True
 
 def position_handler(data):
     rospy.loginfo(rospy.get_caller_id() + "I received %s", data)
