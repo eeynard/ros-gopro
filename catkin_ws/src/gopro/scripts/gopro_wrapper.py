@@ -77,8 +77,8 @@ class GoProWrapper:
         # use OpenCV to capture a frame
 
         rospy.loginfo('Capturing preview')
-        #capture = cv2.VideoCapture('udp://@' + self.ip + ':8554/')
-        capture = cv2.VideoCapture(0)
+        capture = cv2.VideoCapture('udp://@' + self.ip + ':8554/')
+        #capture = cv2.VideoCapture(0) # webcam
 
         if capture.isOpened():
             rospy.loginfo('Capturing is opened')
