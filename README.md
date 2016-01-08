@@ -15,7 +15,8 @@ The GoPro is controlled via HTTP calls defined by the constructor. It permits to
  
 ### Getting the status
 
-ROS Topic: /gopro/status
+**ROS Topic:**
+    - /gopro/status
 
 You can get all the status of the GoPro on this topic, refreshed every second. 
 It is retrieved by making several calls to the HTTP Api and merging 
@@ -23,8 +24,9 @@ responses to one message.
  
 ### Retrieve images
 
-ROS Topic:  /gopro/camera/picture
-            /gopro/camera/take_picture
+**ROS Topic:**
+    - /gopro/camera/picture
+    - /gopro/camera/take_picture
             
 Sending Int32 1 to topic /gopro/camera/take_picture, the ROS node publish a sensor_msgs.msg.Image to the /gopro/camera/picture topic.
 
