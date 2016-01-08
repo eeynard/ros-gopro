@@ -16,6 +16,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import subprocess as sp
 from sensor_msgs.msg import Image
 
+
 class GoProWrapper:
 
     def __init__(self, ip, password):
@@ -24,6 +25,7 @@ class GoProWrapper:
         self.base_url = 'http://' + self.ip + '/'
         self.cv2_bridge = CvBridge()
 
+    def set_up(self):
         # Sets the resolution to the minimum one
         self.do_http_request('/gp/gpControl/setting/2/13')
 
