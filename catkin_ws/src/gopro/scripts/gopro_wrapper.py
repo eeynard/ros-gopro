@@ -108,6 +108,9 @@ class GoProWrapper:
         # Takes the photo
         self.do_http_request('/gp/gpControl/command/shutter?p=1')
 
+        # We have to wait for the picture to be taken and added to medias
+        # 0.5 is the maximum shutter speed
+        # https://gopro.com/support/articles/what-are-the-minimum-and-maximum-shutter-speeds-for-hero4
         time.sleep(.5)
 
         # Crawl the web page

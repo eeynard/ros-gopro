@@ -35,6 +35,8 @@ def talker():
 
     rate = rospy.Rate(1)
 
+    gopro.set_up()
+
     # gopro.start_preview()
 
     # keep_alive = 1
