@@ -14,7 +14,8 @@ picture_publisher = None
 def take_picture_callback(data):
     if data.data:
         picture = gopro.picture()
-        #picture = gopro.picture_from_preview()
+        # picture = gopro.picture_from_preview_cv()
+        # picture = gopro.picture_from_preview_ff()
 
         if picture:
             picture_publisher.publish(picture)

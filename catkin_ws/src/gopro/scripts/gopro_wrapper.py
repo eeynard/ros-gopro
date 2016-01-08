@@ -13,6 +13,8 @@ from gopro_responses import status_matrix
 # attempt imports for image() function
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
+import subprocess as sp
+from sensor_msgs.msg import Image
 
 class GoProWrapper:
 
@@ -27,7 +29,7 @@ class GoProWrapper:
     """
     def do_http_request(self, url):
         try:
-            return requests.get('http://' + self.ip + url)
+            return requests.get('http://' + self.ip + url, timeout=5)
         except requests.ConnectionError as exception:
             rospy.logerr(exception.message)
 
@@ -44,18 +46,39 @@ class GoProWrapper:
     Sends a packet to the camera to keep alive the preview
     """
     def keep_alive_preview(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sckt = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
         rospy.loginfo('Sending keep alive packet to preview')
-        sock.sendto("_GPHD_:0:0:2:0\n", (self.ip, 8554))
+        sckt.sendto("_GPHD_:0:0:2:0\n", (self.ip, 8554))
 
     """
-    Returns a photo from the live feed of the gopro
+    Returns a photo from the live feed of the gopro with ffmpeg
     """
-    def picture_from_preview(self):
+    def picture_from_preview_ff(self):
+        cv2.namedWindow("GoPro",cv2.CV_WINDOW_AUTOSIZE)
+
+        sp.Popen(
+            [
+                'ffmpeg',
+                '-i', 'udp://@' + self.ip + ':8554/',
+                'r', '1',
+                '-f', 'image2',
+                '-vframes', '1',
+                '-vcodec', 'mjpeg',
+                'captured.jpg',
+            ], stdin=sp.PIPE, stdout=sp.PIPE)
+
+        return Image('captured.jpg')
+
+    """
+    Returns a photo from the live feed of the gopro with opencv
+    """
+    def picture_from_preview_cv(self):
         # use OpenCV to capture a frame
 
         rospy.loginfo('Capturing preview')
-        capture = cv2.VideoCapture('udp://@10.5.5.9:8554')
+        #capture = cv2.VideoCapture('udp://@' + self.ip + ':8554/')
+        capture = cv2.VideoCapture(0)
 
         if capture.isOpened():
             rospy.loginfo('Capturing is opened')
