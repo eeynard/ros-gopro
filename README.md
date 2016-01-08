@@ -81,4 +81,22 @@ Last thing to do is to publish to ROS topics to control the gimbal. It is a ROS 
 ```
 rostopic pub RGP_pitch_control std_msgs/UInt16 60
 ```
+## GoPro Analyzer
+### Aim
+Detect faces in Go Pro pictures, compute distance between camera and faces, and publish face positions (in degrees). 
+### Prerequisites
+Rect python library is needed
+```
+pip install rect
+```
+### How to launch it
+```
+roslaunch gopro_analyzer analyzer.launch
+```
+### How it works
+GoPro Analyzer listen GoPro Controller topics which send pictures and camera information (such as video resolution - 16/9 or 4/3 - and fov - camera horizontal angle - in degrees). It defines camera vertical angle with those information.
+GoPro Analyzer uses OpenCV to detect faces and eyes [tutorial](http://docs.opencv.org/master/d7/d8b/tutorial_py_face_detection.html#gsc.tab=0), and then determines faces position on pictures and in front of the camera by using camera v/h angles.
+It also compute distance between camera and faces by using measures took by hand (face widths in pixels are proportionnal to the face distances in centimeter with camera, so we can approximate it for any face widths after we took some measures).
+In the end, GoPro Analyzer publish all this information in topics (see below).
+GoPro Analyzer launcher launch RVIZ where raw pictures and analyzed pictures are displayed.
 
