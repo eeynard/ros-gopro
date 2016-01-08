@@ -7,6 +7,45 @@ This project is fully tested with:
 
 Retrieve the preview of the gopro does not work on a vm with Ubuntu
 
+## GoPro Controller
+
+### How it works
+
+The GoPro is controlled via HTTP calls defined by the constructor. It permits to enable the gopro, getting its status, ...
+ 
+### Getting the status
+
+ROS Topic: /gopro/status
+
+You can get all the status of the GoPro on this topic, refreshed every second. 
+It is retrieved by making several calls to the HTTP Api and merging 
+responses to one message.
+ 
+### Retrieve images
+
+ROS Topic:  /gopro/camera/picture
+            /gopro/camera/take_picture
+            
+Sending Int32 1 to topic /gopro/camera/take_picture, the ROS node publish a sensor_msgs.msg.Image to the /gopro/camera/picture topic.
+
+            
+### Troubleshooting
+
+We can activate a preview mode on the GoPro which makes a stream available on udp://@10.5.5.9:8554.
+As the preview is using significant energy, we have to send keep alive packet every 2.5 seconds maximum.
+
+We can retrieve video data with FFPlay:
+```
+ffplay -fflags nobuffer -f:v mpegts -probesize 8192 udp://@10.5.5.9:8554
+```
+
+OpenCV seems to be unable to retrieve UDP video stream over network. 
+Retrieving a frame with FFMpeg is possible but it is really slow. 
+It is due to that PPS frame are sent only one time each 5 / 10 seconds in the MPEGTS format and those frames
+are essential to FFMpeg to decode and save a frame to an image.
+
+So, as a work-around of those issues, we decided to take a picture with the GoPro, retrieve it from HTTP and sending it to the ROS Node
+
 ## Gimbal
 The gimbal is controlled by an arduino UNO using ROS and rosserial.
 
