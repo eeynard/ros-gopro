@@ -13,6 +13,9 @@ from gopro_responses import status_matrix
 # attempt imports for image() function
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
+import subprocess as sp
+from sensor_msgs.msg import Image
+
 
 class GoProWrapper:
 
@@ -22,12 +25,16 @@ class GoProWrapper:
         self.base_url = 'http://' + self.ip + '/'
         self.cv2_bridge = CvBridge()
 
+    def set_up(self):
+        # Sets the resolution to the minimum one
+        self.do_http_request('/gp/gpControl/setting/2/13')
+
     """
     Wrapped to do an HTTP request
     """
     def do_http_request(self, url):
         try:
-            return requests.get('http://' + self.ip + url)
+            return requests.get('http://' + self.ip + url, timeout=5)
         except requests.ConnectionError as exception:
             rospy.logerr(exception.message)
 
@@ -44,18 +51,39 @@ class GoProWrapper:
     Sends a packet to the camera to keep alive the preview
     """
     def keep_alive_preview(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sckt = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
         rospy.loginfo('Sending keep alive packet to preview')
-        sock.sendto("_GPHD_:0:0:2:0\n", (self.ip, 8554))
+        sckt.sendto("_GPHD_:0:0:2:0\n", (self.ip, 8554))
 
     """
-    Returns a photo from the live feed of the gopro
+    Returns a photo from the live feed of the gopro with ffmpeg
     """
-    def picture_from_preview(self):
+    def picture_from_preview_ff(self):
+        cv2.namedWindow("GoPro",cv2.CV_WINDOW_AUTOSIZE)
+
+        sp.Popen(
+            [
+                'ffmpeg',
+                '-i', 'udp://@' + self.ip + ':8554/',
+                'r', '1',
+                '-f', 'image2',
+                '-vframes', '1',
+                '-vcodec', 'mjpeg',
+                'captured.jpg',
+            ], stdin=sp.PIPE, stdout=sp.PIPE)
+
+        return Image('captured.jpg')
+
+    """
+    Returns a photo from the live feed of the gopro with opencv
+    """
+    def picture_from_preview_cv(self):
         # use OpenCV to capture a frame
 
         rospy.loginfo('Capturing preview')
-        capture = cv2.VideoCapture('udp://@10.5.5.9:8554')
+        capture = cv2.VideoCapture('udp://@' + self.ip + ':8554/')
+        #capture = cv2.VideoCapture(0) # webcam
 
         if capture.isOpened():
             rospy.loginfo('Capturing is opened')
@@ -74,15 +102,15 @@ class GoProWrapper:
     Takes a picture and retrieves it from HTTP
     """
     def picture(self):
-        # Sets the resolution to the minimum one
-        self.do_http_request('/gp/gpControl/setting/2/13')
-
         # Mode to photo
         self.do_http_request('/gp/gpControl/command/mode?p=1')
 
         # Takes the photo
         self.do_http_request('/gp/gpControl/command/shutter?p=1')
 
+        # We have to wait for the picture to be taken and added to medias
+        # 0.5 is the maximum shutter speed
+        # https://gopro.com/support/articles/what-are-the-minimum-and-maximum-shutter-speeds-for-hero4
         time.sleep(.5)
 
         # Crawl the web page
