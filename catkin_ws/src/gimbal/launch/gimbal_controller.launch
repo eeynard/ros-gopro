@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="rosserial_python" name="arduino" type="serial_node.py" output="screen" args="_port:=/dev/ttyACM0" />
+  <node pkg="gimbal" name="gimbal" type="gimbal_controller.py" output="screen" />
+</launch>

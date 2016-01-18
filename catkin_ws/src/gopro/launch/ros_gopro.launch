@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find gopro_analyzer)/launch/analyzer.launch" />
+  <include file="$(find gimbal)/launch/gimbal_controller.launch" />
+</launch>
