@@ -18,9 +18,9 @@
 #define RGP_MIN_PITCH_ANGLE 60
 #define RGP_MAX_PITCH_ANGLE 140
 //TODO: define heading limits
-#define RGP_DEFAULT_HEADING_ANGLE 90
-#define RGP_MIN_HEADING_ANGLE 90
-#define RGP_MAX_HEADING_ANGLE 90
+#define RGP_NEUTRAL_HEADING_ANGLE 90
+#define RGP_MIN_HEADING_ANGLE 0
+#define RGP_MAX_HEADING_ANGLE 180
 
 #define RGP_DEFAULT_MODE 3
 #define RGP_MIN_PULSE_WIDTH 1000
@@ -39,7 +39,6 @@ Servo heading;
 Servo mode;
 
 int currentPitchAngle;
-int currentHeadingAngle;
 
 int isAuthorized(int servo, int angle) {
   return (servo == RGP_PIN_PITCH_CONTROL && (RGP_MIN_PITCH_ANGLE <= angle && angle <= RGP_MAX_PITCH_ANGLE)) ||
@@ -55,10 +54,11 @@ void pitch_handler(const std_msgs::Int16& cmd_msg){
 }
 
 void heading_handler(const std_msgs::Int16& cmd_msg){
-  int newAngle = currentHeadingAngle + cmd_msg.data;
+  int newAngle = RGP_NEUTRAL_HEADING_ANGLE + cmd_msg.data;
   if (isAuthorized(RGP_PIN_HEADING_CONTROL, newAngle)) {
-    currentHeadingAngle = newAngle;
     heading.write(newAngle);
+    delay(500);
+    heading.write(RGP_NEUTRAL_HEADING_ANGLE);
   }
 }
 
@@ -79,12 +79,9 @@ void setup(){
   mode.write(RGP_DEFAULT_MODE);
   
   pitch.attach(RGP_PIN_PITCH_CONTROL, RGP_MIN_PULSE_WIDTH, RGP_MAX_PULSE_WIDTH);
-  pitch.write(RGP_DEFAULT_PITCH_ANGLE);
   currentPitchAngle = RGP_DEFAULT_PITCH_ANGLE;
 
-  heading.attach(RGP_PIN_HEADING_CONTROL, RGP_MIN_PULSE_WIDTH, RGP_MAX_PULSE_WIDTH);  
-  heading.write(RGP_DEFAULT_HEADING_ANGLE);
-  currentHeadingAngle = RGP_DEFAULT_HEADING_ANGLE;
+  heading.attach(RGP_PIN_HEADING_CONTROL, 1400, 1600);  
 
   nh.initNode();
   nh.subscribe(sub_pitch);
