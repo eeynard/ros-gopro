@@ -20,9 +20,13 @@ class Analyzer:
         self.vidRes = None
         self.verticalAngle = None
         self.horizontalAngle = None
-
+        
         # Init node
         rospy.init_node('analyzer', log_level=rospy.DEBUG)
+
+        # Get param eyes detection
+        self.detectEyes = rospy.get_param('~detect_eyes', False)
+        rospy.logerr(str(self.detectEyes) + '-----------------------------------------')
         
         # Find needed resources
         rospack = rospkg.RosPack()
@@ -121,8 +125,11 @@ class Analyzer:
                 verticalDistanceAngle = verticalAngle * distance / height
                 facePosition.vertical = - verticalDistanceAngle
                 rospy.logdebug("Bottom : " + str(verticalDistanceAngle) + " degrees")
+
             # Publish face position
-            self.facePositionPub.publish(facePosition)
+            if (self.detectEyes and len(eyes) == 2) or not self.detectEyes :
+                self.facePositionPub.publish(facePosition)
+                
                 
         # Publish analyzed picture     
         self.analyzedPicturePub.publish(self.bridge.cv2_to_imgmsg(img, encoding="passthrough"))
