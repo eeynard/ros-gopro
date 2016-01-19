@@ -81,7 +81,7 @@ void setup(){
   pitch.attach(RGP_PIN_PITCH_CONTROL, RGP_MIN_PULSE_WIDTH, RGP_MAX_PULSE_WIDTH);
   currentPitchAngle = RGP_DEFAULT_PITCH_ANGLE;
 
-  heading.attach(RGP_PIN_HEADING_CONTROL, 1400, 1600);  
+  heading.attach(RGP_PIN_HEADING_CONTROL, RGP_MIN_PULSE_WIDTH, RGP_MAX_PULSE_WIDTH);  
 
   nh.initNode();
   nh.subscribe(sub_pitch);

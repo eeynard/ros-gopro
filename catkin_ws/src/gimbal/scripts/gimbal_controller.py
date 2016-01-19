@@ -12,10 +12,10 @@ def talker(received):
     global gvangle
     global ghangle
     global haveReceived
-    if received.vertical <= -7 or 7 <= received.vertical:
+    if received.vertical <= -15 or 15 <= received.vertical:
         gvangle = received.vertical
         haveReceived = True
-    if received.horizontal <= -7 or 7 <= received.horizontal:
+    if received.horizontal <= -15 or 15 <= received.horizontal:
         ghangle = received.horizontal
         haveReceived = True
 
