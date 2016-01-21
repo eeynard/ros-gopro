@@ -8,14 +8,14 @@ This project is fully tested with:
 Retrieve the preview of the gopro does not work on a vm with Ubuntu
 
 ## How to run the whole app
-1. Connect your gimbal to battery
+1. Upload arduino/gimbal-controller/gimbal-controller.ino on your Arduino board
 2. Connect your gimbal to the arduino
   * Ground wire (black for gimbal feiyu G3) on arduino's ground
   * Pitch wire (white for gimbal feiyu G3) on pin 2
   * Heading wire (brown for gimbal feiyu G3) on pin 7
   * Mode wire (yellow for gimbal feiyu G3) on pin 4
-3. Connect your computer to the gopro's wifi
-4. Launch roscore
+3. Connect your gimbal to battery
+4. Connect your computer to the gopro's wifi
 5. Finally launch the main launch file
 ```
 roslaunch gopro ros_gopro.launch
